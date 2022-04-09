@@ -1,0 +1,21 @@
+FROM node:14.19-alpine as build-frontend-deps
+
+RUN apk add --no-cache --update git
+
+ADD frontend/package.json /srv/frontend/package.json
+ADD frontend/package-lock.json /srv/frontend/package-lock.json
+WORKDIR /srv/frontend
+RUN mkdir node_modules
+RUN npm i
+
+FROM node:14.19-alpine as build-frontend
+
+COPY --from=build-frontend-deps /srv/frontend/node_modules /srv/frontend/node_modules
+ADD frontend /srv/frontend
+WORKDIR /srv/frontend
+RUN mkdir build
+RUN npm run build
+RUN rm -rf ./node_modules
+
+FROM nginx:1.20-alpine
+COPY --from=build-frontend /srv/frontend/build /usr/share/nginx/html

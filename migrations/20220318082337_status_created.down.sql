@@ -1,0 +1,1 @@
+ALTER TABLE "status" DROP COLUMN created;

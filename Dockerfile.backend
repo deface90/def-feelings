@@ -1,0 +1,17 @@
+FROM ghcr.io/deface90/baseimage/go-build:latest as build
+
+ADD ./backend /backend
+WORKDIR /backend
+
+RUN go build -o backend .
+
+FROM ghcr.io/deface90/baseimage/go-runtime:latest
+
+COPY --from=build /backend/backend /srv/backend
+
+EXPOSE 8080
+WORKDIR /srv
+
+ADD ./migrations /srv/migrations
+
+CMD ["/srv/backend"]

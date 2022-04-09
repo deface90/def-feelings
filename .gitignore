@@ -1,0 +1,10 @@
+.DS_Store
+.idea
+
+config.json
+.env
+
+frontend/.idea
+frontend/node_modules
+frontend/build
+frontend/yarn.lock

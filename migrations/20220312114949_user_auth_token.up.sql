@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN auth_token varchar(255) NOT NULL DEFAULT '';

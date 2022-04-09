@@ -1,0 +1,1 @@
+ALTER TABLE "status" ADD COLUMN created timestamp WITH TIME ZONE NOT NULL DEFAULT now();

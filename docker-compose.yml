@@ -1,0 +1,51 @@
+version: "3.8"
+
+networks:
+  feelings:
+
+services:
+  backend:
+    image: ghcr.io/deface90/def-feelings/backend:latest
+    hostname: backend
+    container_name: backend
+    ports:
+      - "${BACKEND_PORT}"
+    networks:
+      - feelings
+    restart: always
+    env_file:
+      - ./.env
+    logging:
+      driver: json-file
+      options:
+        max-size: "100k"
+
+  frontend:
+    image: ghcr.io/deface90/def-feelings/frontend:latest
+    hostname: frontend
+    container_name: frontend
+    ports:
+      - "${FRONTEND_PORT}:80"
+    networks:
+      - feelings
+    restart: always
+    env_file:
+      - ./.env
+    logging:
+      driver: json-file
+      options:
+        max-size: "100k"
+
+  postgres:
+    image: postgres:13-alpine
+    hostname: postgres
+    container_name: postgres
+    env_file:
+      - ./.env
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - feelings
+    restart: always

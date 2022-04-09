@@ -1,0 +1,90 @@
+name: build
+
+on:
+  push:
+    branches:
+    tags:
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '=1.17.0'
+      - uses: actions/checkout@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.29
+          working-directory: backend
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+    env:
+      POSTGRES_TEST_DSN: postgresql://postgres:postgres@localhost:5432/test?sslmode=disable
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '=1.17.0'
+      - uses: actions/checkout@v3
+      - name: run tests
+        working-directory: backend
+        run: go test ./...
+
+  build_backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+      - name: build backend image
+        if: ${{ github.ref == 'refs/heads/master' }}
+        env:
+          GITHUB_PACKAGE_TOKEN: ${{ secrets.GITHUBPKG }}
+          USERNAME: ${{ github.actor }}
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          ref="$(echo ${GITHUB_REF} | cut -d'/' -f3)"
+          echo GITHUB_REF - $ref
+          echo ${GITHUB_PACKAGE_TOKEN} | docker login ghcr.io -u ${USERNAME} --password-stdin
+          docker buildx build --push --platform linux/amd64 \
+            -t ghcr.io/${USERNAME}/def-feelings/backend:latest \
+            backend -f Dockerfile.backend
+  build_frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+      - name: build frontend image
+        if: ${{ github.ref == 'refs/heads/master' }}
+        env:
+          GITHUB_PACKAGE_TOKEN: ${{ secrets.GITHUBPKG }}
+          USERNAME: ${{ github.actor }}
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          ref="$(echo ${GITHUB_REF} | cut -d'/' -f3)"
+          echo GITHUB_REF - $ref
+          echo ${GITHUB_PACKAGE_TOKEN} | docker login ghcr.io -u ${USERNAME} --password-stdin
+          docker buildx build --push --platform linux/amd64 \
+            -t ghcr.io/${USERNAME}/def-feelings/frontend:latest \
+            frontend -f Dockerfile.frontend
