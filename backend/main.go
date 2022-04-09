@@ -36,8 +36,12 @@ func main() {
 		log.Fatalf("Failed to make engine")
 	}
 
-	tgWorker := service.NewTelegramWorker(engine, cfg, logger)
-	go tgWorker.Exec()
+	tgWorker, err := service.NewTelegramWorker(engine, cfg, logger)
+	if err != nil {
+		log.WithError(err).Error("Failed to init telegram worker")
+	} else {
+		go tgWorker.Exec()
+	}
 
 	restService := rest.NewRestService(engine, cfg, logger)
 	restService.Run()

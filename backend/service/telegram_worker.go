@@ -20,7 +20,7 @@ type TelegramWorker struct {
 	bot *tgbotapi.BotAPI
 }
 
-func NewTelegramWorker(e storage.Engine, c storage.Config, l *log.Logger) TelegramWorker {
+func NewTelegramWorker(e storage.Engine, c storage.Config, l *log.Logger) (*TelegramWorker, error) {
 	worker := TelegramWorker{
 		engine: e,
 		config: c,
@@ -30,12 +30,12 @@ func NewTelegramWorker(e storage.Engine, c storage.Config, l *log.Logger) Telegr
 	var err error
 	worker.bot, err = tgbotapi.NewBotAPI(c.TelegramBotToken)
 	if err != nil {
-		log.Panic(err)
+		return nil, err
 	}
 
 	l.Printf("Authorized on account %s", worker.bot.Self.UserName)
 
-	return worker
+	return &worker, nil
 }
 
 func (w *TelegramWorker) Exec() {

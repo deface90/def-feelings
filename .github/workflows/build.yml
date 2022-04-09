@@ -15,22 +15,27 @@ jobs:
           go-version: '=1.17.0'
       - uses: actions/checkout@v3
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.29
+          version: v1.44
           working-directory: backend
 
   test:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres
+        image: postgres:13.6-alpine
         env:
           POSTGRES_DB: test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       POSTGRES_TEST_DSN: postgresql://postgres:postgres@localhost:5432/test?sslmode=disable
     steps:
