@@ -2,8 +2,8 @@ FROM node:14.19-alpine as build-frontend-deps
 
 RUN apk add --no-cache --update git
 
-ADD frontend/package.json /srv/frontend/package.json
-ADD frontend/package-lock.json /srv/frontend/package-lock.json
+ADD ./package.json /srv/frontend/package.json
+ADD ./package-lock.json /srv/frontend/package-lock.json
 WORKDIR /srv/frontend
 RUN mkdir node_modules
 RUN npm i
@@ -11,7 +11,7 @@ RUN npm i
 FROM node:14.19-alpine as build-frontend
 
 COPY --from=build-frontend-deps /srv/frontend/node_modules /srv/frontend/node_modules
-ADD frontend /srv/frontend
+ADD . /srv/frontend
 WORKDIR /srv/frontend
 RUN mkdir build
 RUN npm run build

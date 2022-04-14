@@ -1,6 +1,6 @@
 FROM ghcr.io/deface90/baseimage/go-build:latest as build
 
-ADD ./backend /backend
+ADD . /backend
 WORKDIR /backend
 
 RUN go build -o backend .
