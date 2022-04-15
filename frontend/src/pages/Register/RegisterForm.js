@@ -102,11 +102,6 @@ export default function RegisterForm(props) {
             description: "Disable notifications"
         },
         {
-            value: 1,
-            title: 'Browser',
-            description: "Notify you by browser native notifications"
-        },
-        {
             value: 2,
             title: 'Telegram',
             description: "Notify you by telegram bot"
