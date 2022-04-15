@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"github.com/deface90/def-feelings/rest"
-	"github.com/deface90/def-feelings/service"
 	"github.com/deface90/def-feelings/storage"
 	"github.com/deface90/def-feelings/storage/adapter"
 	"github.com/deface90/go-logger/filename"
@@ -36,12 +35,12 @@ func main() {
 		log.Fatalf("Failed to make engine")
 	}
 
-	tgWorker, err := service.NewTelegramWorker(engine, cfg, logger)
+	/*tgWorker, err := service.NewTelegramWorker(engine, cfg, logger)
 	if err != nil {
 		log.WithError(err).Error("Failed to init telegram worker")
 	} else {
 		go tgWorker.Exec()
-	}
+	}*/
 
 	restService := rest.NewRestService(engine, cfg, logger)
 	restService.Run()

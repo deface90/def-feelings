@@ -70,6 +70,8 @@ func (s *Rest) routes() chi.Router {
 			routerPrivate.Post("/user/subscribe/{id}", s.subscribeUserHandler)
 
 			routerPrivate.Post("/feeling/list", s.listFeelingsHandler)
+			routerPrivate.Post("/feeling/frequency", s.feelingsFrequencyHandler)
+
 			routerPrivate.Post("/status/create", s.createStatusHandler)
 			routerPrivate.Get("/status/get/{id}", s.getStatusHandler)
 			routerPrivate.Post("/status/list", s.listStatusesHandler)

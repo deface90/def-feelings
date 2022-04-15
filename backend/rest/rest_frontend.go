@@ -160,6 +160,24 @@ func (s *Rest) listFeelingsHandler(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, feelingsList)
 }
 
+func (s *Rest) feelingsFrequencyHandler(w http.ResponseWriter, r *http.Request) {
+	request := storage.NewFeelingsFrequencyRequest()
+	if err := render.DecodeJSON(http.MaxBytesReader(w, r.Body, 1024), &request); err != nil {
+		SendErrorJSON(w, r, http.StatusBadRequest, err, "Error decoding request body", ErrDecode)
+		return
+	}
+
+	request.UserID = s.getCurrentUser(r).ID
+	feelingsList, err := s.engine.GetFeelingsFrequency(r.Context(), request)
+	if err != nil {
+		SendErrorJSON(w, r, http.StatusInternalServerError, err, "Error listing feelings frequency", ErrInternal)
+		return
+	}
+
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, feelingsList)
+}
+
 func (s *Rest) createStatusHandler(w http.ResponseWriter, r *http.Request) {
 	var status storage.Status
 	if err := render.DecodeJSON(http.MaxBytesReader(w, r.Body, 1024), &status); err != nil {

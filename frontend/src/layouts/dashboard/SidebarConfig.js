@@ -17,6 +17,11 @@ const sidebarConfig = [
     icon: getIcon('eva:file-text-fill')
   },
   {
+    title: 'feelings list',
+    path: '/feeling/frequency',
+    icon: getIcon('eva:file-text-fill')
+  },
+  {
     title: 'profile edit',
     path: '/profile/edit',
     icon: getIcon('eva:edit-2-fill')

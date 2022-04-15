@@ -11,7 +11,8 @@ const urls = {
     "status-create": "/status/create",
     "status-list": "/status/list",
 
-    "feelings-list": "/feeling/list"
+    "feelings-list": "/feeling/list",
+    "feelings-frequency": "/feeling/frequency"
 }
 
 export default urls

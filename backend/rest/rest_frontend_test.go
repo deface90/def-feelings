@@ -237,6 +237,52 @@ func Test_Status(t *testing.T) {
 	assert.Equal(t, 1, len(l))
 }
 
+func Test_FeelingsFrequency(t *testing.T) {
+	srv, teardown := prepare(t)
+	defer teardown()
+
+	token, err := login(t, srv.URL)
+	require.NoError(t, err)
+
+	resp, err := post(t, srv.URL+"/api/v1/status/create?token="+token,
+		`{"feelings": ["test", "hello"], "message": "some test"}`)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	type StatusResp struct {
+		ID int64 `json:"id"`
+	}
+	var s StatusResp
+	body, err := ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	err = json.Unmarshal(body, &s)
+	assert.NoError(t, err)
+
+	resp, err = post(t, srv.URL+"/api/v1/status/create?token="+token,
+		`{"feelings": ["test"], "message": "some test"}`)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	body, err = ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	err = json.Unmarshal(body, &s)
+	assert.NoError(t, err)
+
+	resp, err = post(t, srv.URL+"/api/v1/feeling/frequency?token="+token, "{}")
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	var r []storage.FeelingFrequencyItem
+	body, err = ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	err = json.Unmarshal(body, &r)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(r))
+	assert.Equal(t, "test", r[0].Feeling.Title)
+	assert.Equal(t, int64(2), r[0].Frequency)
+	assert.Equal(t, "hello", r[1].Feeling.Title)
+}
+
 func Test_UserSubscribe(t *testing.T) {
 	srv, teardown := prepare(t)
 	defer teardown()

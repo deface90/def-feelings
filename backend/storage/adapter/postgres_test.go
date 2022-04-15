@@ -32,41 +32,6 @@ func TestPostgres_CreateUser(t *testing.T) {
 	assert.NotEqual(t, 0, id)
 }
 
-/*func TestPostgres_UserValidation(t *testing.T) {
-	p, teardown := prepare(t)
-	defer teardown()
-
-	u := &storage.User{}
-	err := p.validateUser(u, true)
-	assert.EqualError(t, err, storage.ErrUserPasswordRequired)
-
-	u.Password = "t"
-	err = p.validateUser(u, true)
-	assert.EqualError(t, err, storage.ErrUserPasswordInvalid)
-
-	u.Password = "test12345"
-	err = p.validateUser(u, true)
-	assert.EqualError(t, err, storage.ErrUserUsernameRequired)
-
-	u.Username = "a"
-	err = p.validateUser(u, true)
-	assert.EqualError(t, err, storage.ErrUserUsernameInvalid)
-
-	u.Username = "test_new"
-	u.Email = "test"
-	err = p.validateUser(u, true)
-	assert.EqualError(t, err, storage.ErrUserEmailInvalid)
-
-	u.Email = "test@test.com"
-	u.Username = "test"
-	err = p.validateUser(u, true)
-	assert.EqualError(t, err, storage.ErrUserExists)
-
-	u.Username = "test123"
-	err = p.validateUser(u, true)
-	assert.NoError(t, err)
-}*/
-
 func TestPostgres_GetUser(t *testing.T) {
 	p, teardown := prepare(t)
 	defer teardown()
@@ -374,6 +339,32 @@ func TestPostgres_ListUsersSubscriptions(t *testing.T) {
 	subList, err = p.ListUsersSubscriptions(ctx, 2, 1)
 	assert.NoError(t, err)
 	assert.Equal(t, 0, len(subList))
+}
+
+func TestPostgres_GetFeelingFrequency(t *testing.T) {
+	p, teardown := prepare(t)
+	defer teardown()
+
+	ctx := context.Background()
+	status := storage.Status{
+		ID:       10,
+		UserID:   1,
+		Feelings: []string{"foo", "bar"},
+		Created:  time.Now(),
+	}
+	_, err := p.CreateStatus(ctx, &status)
+	require.NoError(t, err)
+
+	ff, err := p.GetFeelingsFrequency(ctx, storage.FeelingsFrequencyRequest{
+		UserID:          1,
+		BaseListRequest: storage.BaseListRequest{Limit: 10, Page: 0},
+	})
+	require.NoError(t, err)
+	require.Equal(t, 2, len(ff))
+	assert.Equal(t, "foo", ff[0].Feeling.Title)
+	assert.Equal(t, int64(2), ff[0].Frequency)
+	assert.Equal(t, "bar", ff[1].Feeling.Title)
+	assert.Equal(t, int64(1), ff[1].Frequency)
 }
 
 func prepare(t *testing.T) (p *Postgres, teardown func()) {

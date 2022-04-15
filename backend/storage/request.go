@@ -41,6 +41,20 @@ type ListStatusesRequest struct {
 	BaseListRequest
 }
 
+// FeelingsFrequencyRequest contains supported fields for frequent feelings list request
+type FeelingsFrequencyRequest struct {
+	UserID        int64     `json:"user_id"`
+	DatetimeStart time.Time `json:"datetime_start,omitempty"`
+	DatetimeEnd   time.Time `json:"datetime_end,omitempty"`
+	BaseListRequest
+}
+
+// FeelingFrequencyItem represents item of response of feelings frequency response
+type FeelingFrequencyItem struct {
+	Feeling   Feeling `json:"feeling"`
+	Frequency int64   `json:"frequency"`
+}
+
 // NewBaseListRequest returns new BaseListRequest with default parameters
 func NewBaseListRequest() BaseListRequest {
 	return BaseListRequest{
@@ -68,6 +82,13 @@ func NewListFeelingsRequest() ListFeelingsRequest {
 // NewListStatusesRequest returns model, which contains supported fields for Status listing request
 func NewListStatusesRequest() ListStatusesRequest {
 	return ListStatusesRequest{
+		BaseListRequest: NewBaseListRequest(),
+	}
+}
+
+// NewFeelingsFrequencyRequest returns model, which contains supported fields for frequent feelings list request
+func NewFeelingsFrequencyRequest() FeelingsFrequencyRequest {
+	return FeelingsFrequencyRequest{
 		BaseListRequest: NewBaseListRequest(),
 	}
 }

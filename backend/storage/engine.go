@@ -18,6 +18,7 @@ type Engine interface {
 	ListUsersSubscriptions(ctx context.Context, subType, status int64) ([]*UserSubscription, error)
 
 	ListFeelings(ctx context.Context, request ListFeelingsRequest) ([]*Feeling, error)
+	GetFeelingsFrequency(ctx context.Context, request FeelingsFrequencyRequest) ([]FeelingFrequencyItem, error)
 
 	CreateStatus(ctx context.Context, status *Status) (int64, error)
 	GetStatus(ctx context.Context, statusID int64) (*Status, error)

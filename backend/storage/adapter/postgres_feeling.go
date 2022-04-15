@@ -141,6 +141,42 @@ func (p *Postgres) ListFeelings(ctx context.Context, request storage.ListFeeling
 	return feelings, nil
 }
 
+func (p *Postgres) GetFeelingsFrequency(ctx context.Context, request storage.FeelingsFrequencyRequest) ([]storage.FeelingFrequencyItem, error) {
+	query := fmt.Sprintf(`
+SELECT COUNT(sf.*) as feeling_count, sf.feeling_id, f.title FROM %s sf
+INNER JOIN %s s ON sf.status_id=s.id`, postgresStatusFeeling, postgresStatus)
+	if !request.DatetimeStart.IsZero() {
+		query += fmt.Sprintf(" AND s.created>='%v'", request.DatetimeStart.Format(time.RFC3339))
+	}
+	if !request.DatetimeEnd.IsZero() {
+		query += fmt.Sprintf(" AND s.created<='%v'", request.DatetimeEnd.Format(time.RFC3339))
+	}
+
+	query += fmt.Sprintf(` LEFT JOIN %s f ON sf.feeling_id=f.id 
+WHERE sf.status_id=s.id AND sf.feeling_id=f.id AND s.user_id=$1
+GROUP BY sf.feeling_id, f.title
+ORDER BY feeling_count DESC
+LIMIT $2 OFFSET $3`, postgresFeeling)
+
+	rows, err := p.db.Query(ctx, query, request.UserID, request.Limit, request.Limit*request.Page)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to get frequent feelings list")
+	}
+
+	var response []storage.FeelingFrequencyItem
+	for rows.Next() {
+		var item storage.FeelingFrequencyItem
+		err := rows.Scan(&item.Frequency, &item.Feeling.ID, &item.Feeling.Title)
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to scan frequent feeling")
+		}
+
+		response = append(response, item)
+	}
+
+	return response, nil
+}
+
 func (p *Postgres) createFeeling(ctx context.Context, feeling *storage.Feeling) (int64, error) {
 	query := fmt.Sprintf(`INSERT INTO %s (title) VALUES ($1) RETURNING id`, postgresFeeling)
 	row := p.db.QueryRow(ctx, query, feeling.Title)

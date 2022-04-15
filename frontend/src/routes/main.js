@@ -5,6 +5,7 @@ import LogoOnlyLayout from './../layouts/LogoOnlyLayout';
 
 import Status from './../pages/Status';
 import StatusList from './../pages/Status/StatusList';
+import Feeling from "../pages/Feeling";
 import Profile from './../pages/Profile';
 import Logout from './../pages/Logout';
 import NotFound from './../pages/Page404';
@@ -24,6 +25,13 @@ export default function Router() {
             element: <AppLayout/>,
             children: [
                 {path: 'edit', element: <Profile/>}
+            ]
+        },
+        {
+            path: '/feeling',
+            element: <AppLayout/>,
+            children: [
+                {path: 'frequency', element: <Feeling/>}
             ]
         },
         {
